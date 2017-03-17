@@ -1,4 +1,18 @@
+buildscript {
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.2'
+    }
+}
+
 apply plugin: 'com.android.library'
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "../node_modules/react-native/android"
+    }
+}
 
 android {
     compileSdkVersion 23
