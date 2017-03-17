@@ -5,23 +5,22 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+import android.util.Log;
 import android.widget.Toast;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author rahul
@@ -34,6 +33,11 @@ public class ReactNativeAutoUpdater {
     private final String RNAU_LAST_UPDATE_TIMESTAMP = "React_Native_Auto_Updater_Last_Update_Timestamp";
     public final String RNAU_STORED_JS_FILENAME = "main.android.jsbundle";
     public final String RNAU_STORED_JS_FOLDER = "JSCode";
+
+    private static final int MAX_ATTEMPTS = 5;
+    private int attempts = 0;
+
+    private static final String TAG = ReactNativeAutoUpdater.class.getSimpleName();
 
     public enum ReactNativeAutoUpdaterFrequency {
         EACH_TIME, DAILY, WEEKLY
@@ -102,6 +106,18 @@ public class ReactNativeAutoUpdater {
             FetchMetadataTask task = new FetchMetadataTask();
             task.execute(this.updateMetadataUrl);
         }
+    }
+
+    public void retryUpdate() {
+        attempts++;
+        if (attempts >= MAX_ATTEMPTS) {
+            Log.d(TAG, "Reached max download attempts");
+            return;
+        }
+
+        Log.d(TAG, "Retrying update...");
+        FetchMetadataTask task = new FetchMetadataTask();
+        task.execute(this.updateMetadataUrl);
     }
 
     private boolean shouldCheckForUpdates() {
@@ -181,22 +197,23 @@ public class ReactNativeAutoUpdater {
         try {
             String version = metadata.getString("version");
             String minContainerVersion = metadata.getString("minContainerVersion");
+            String bundleChecksum = metadata.getString("bundleChecksum");
             if (this.shouldDownloadUpdate(version, minContainerVersion)) {
                 this.showProgressToast(R.string.auto_updater_downloading);
                 String downloadURL = metadata.getJSONObject("url").getString("url");
                 if (metadata.getJSONObject("url").getBoolean("isRelative")) {
                     if (this.hostname == null) {
                         this.showProgressToast(R.string.auto_updater_no_hostname);
-                        System.out.println("No hostname provided for relative downloads. Aborting");
+                        Log.d(TAG, "No hostname provided for relative downloads. Aborting");
                     } else {
                         downloadURL = this.hostname + downloadURL;
                     }
                 }
                 FetchUpdateTask updateTask = new FetchUpdateTask();
-                updateTask.execute(downloadURL, version);
+                updateTask.execute(downloadURL, version, bundleChecksum);
             } else {
                 this.showProgressToast(R.string.auto_updater_up_to_date);
-                System.out.println("Already Up to Date");
+                Log.d(TAG, "Already Up to Date");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -351,7 +368,7 @@ public class ReactNativeAutoUpdater {
                     // allow canceling with back button
                     if (isCancelled()) {
                         input.close();
-                        return null;
+                        return "canceled";
                     }
                     output.write(data, 0, count);
                 }
@@ -366,15 +383,19 @@ public class ReactNativeAutoUpdater {
                 return e.toString();
             } finally {
                 try {
-                    if (output != null)
+                    if (output != null) {
                         output.close();
-                    if (input != null)
+                    }
+                    if (input != null) {
                         input.close();
-                } catch (IOException ignored) {
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
                 }
 
-                if (connection != null)
+                if (connection != null) {
                     connection.disconnect();
+                }
             }
             return null;
         }
@@ -384,6 +405,7 @@ public class ReactNativeAutoUpdater {
             mWakeLock.release();
             if (result != null) {
                 ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_downloading_error);
+                ReactNativeAutoUpdater.this.retryUpdate();
             } else {
                 ReactNativeAutoUpdater.this.updateDownloaded();
                 ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_downloading_success);
