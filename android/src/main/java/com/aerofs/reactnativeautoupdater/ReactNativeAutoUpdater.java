@@ -112,6 +112,7 @@ public class ReactNativeAutoUpdater {
         attempts++;
         if (attempts >= MAX_ATTEMPTS) {
             Log.d(TAG, "Reached max download attempts");
+            attempts = 0;
             this.activity.updateGiveUp();
             return;
         }
@@ -320,6 +321,7 @@ public class ReactNativeAutoUpdater {
         protected void onPostExecute(JSONObject jsonObject) {
             if (jsonObject == null) {
                 ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_invalid_metadata);
+                ReactNativeAutoUpdater.this.retryUpdate("Failed to download metadata");
             } else {
                 ReactNativeAutoUpdater.this.verifyMetadata(jsonObject);
             }
@@ -370,7 +372,7 @@ public class ReactNativeAutoUpdater {
                     // allow canceling with back button
                     if (isCancelled()) {
                         input.close();
-                        return "canceled";
+                        throw new Exception("Download canceled");
                     }
                     output.write(data, 0, count);
                 }
@@ -382,7 +384,7 @@ public class ReactNativeAutoUpdater {
                 editor.apply();
             } catch (Exception e) {
                 e.printStackTrace();
-                return e.toString();
+                return e.getMessage();
             } finally {
                 try {
                     if (output != null) {
@@ -400,6 +402,13 @@ public class ReactNativeAutoUpdater {
                 }
             }
             return null;
+        }
+
+        @Override
+        protected void onCancelled(String result) {
+            mWakeLock.release();
+            ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_downloading_error);
+            ReactNativeAutoUpdater.this.retryUpdate(result);
         }
 
         @Override
