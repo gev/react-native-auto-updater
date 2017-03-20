@@ -197,7 +197,6 @@ public class ReactNativeAutoUpdater {
         try {
             String version = metadata.getString("version");
             String minContainerVersion = metadata.getString("minContainerVersion");
-            String bundleChecksum = metadata.getString("bundleChecksum");
             if (this.shouldDownloadUpdate(version, minContainerVersion)) {
                 this.showProgressToast(R.string.auto_updater_downloading);
                 String downloadURL = metadata.getJSONObject("url").getString("url");
@@ -210,7 +209,7 @@ public class ReactNativeAutoUpdater {
                     }
                 }
                 FetchUpdateTask updateTask = new FetchUpdateTask();
-                updateTask.execute(downloadURL, version, bundleChecksum);
+                updateTask.execute(downloadURL, version);
             } else {
                 this.showProgressToast(R.string.auto_updater_up_to_date);
                 Log.d(TAG, "Already Up to Date");
