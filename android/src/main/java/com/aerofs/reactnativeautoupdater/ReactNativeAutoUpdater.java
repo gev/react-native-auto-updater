@@ -32,8 +32,8 @@ public class ReactNativeAutoUpdater {
     public static final String RNAU_SHARED_PREFERENCES = "React_Native_Auto_Updater_Shared_Preferences";
     public static final String RNAU_STORED_VERSION = "React_Native_Auto_Updater_Stored_Version";
     private final String RNAU_LAST_UPDATE_TIMESTAMP = "React_Native_Auto_Updater_Last_Update_Timestamp";
-    public final String RNAU_STORED_JS_FILENAME = "main.android.jsbundle";
-    public final String RNAU_STORED_JS_FOLDER = "JSCode";
+    public static final String RNAU_STORED_JS_FILENAME = "main.android.jsbundle";
+    public static final String RNAU_STORED_JS_FOLDER = "JSCode";
 
     public enum ReactNativeAutoUpdaterFrequency {
         EACH_TIME, DAILY, WEEKLY
