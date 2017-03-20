@@ -108,12 +108,15 @@ public class ReactNativeAutoUpdater {
         }
     }
 
-    public void retryUpdate() {
+    public void retryUpdate(String error) {
         attempts++;
         if (attempts >= MAX_ATTEMPTS) {
             Log.d(TAG, "Reached max download attempts");
+            this.activity.updateGiveUp();
             return;
         }
+
+        this.activity.updateFailed(attempts, error);
 
         Log.d(TAG, "Retrying update...");
         FetchMetadataTask task = new FetchMetadataTask();
@@ -404,7 +407,7 @@ public class ReactNativeAutoUpdater {
             mWakeLock.release();
             if (result != null) {
                 ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_downloading_error);
-                ReactNativeAutoUpdater.this.retryUpdate();
+                ReactNativeAutoUpdater.this.retryUpdate(result);
             } else {
                 ReactNativeAutoUpdater.this.updateDownloaded();
                 ReactNativeAutoUpdater.this.showProgressToast(R.string.auto_updater_downloading_success);
@@ -414,5 +417,7 @@ public class ReactNativeAutoUpdater {
 
     public interface Interface {
         void updateFinished();
+        void updateFailed(int attempt, String error);
+        void updateGiveUp();
     }
 }
