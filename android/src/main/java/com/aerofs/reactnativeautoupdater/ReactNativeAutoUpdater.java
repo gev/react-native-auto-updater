@@ -113,11 +113,15 @@ public class ReactNativeAutoUpdater {
         if (attempts >= MAX_ATTEMPTS) {
             Log.d(TAG, "Reached max download attempts");
             attempts = 0;
-            this.activity.updateGiveUp();
+            if (this.activity != null) {
+                this.activity.updateGiveUp();
+            }
             return;
         }
 
-        this.activity.updateFailed(attempts, error);
+        if (this.activity != null) {
+            this.activity.updateFailed(attempts, error);
+        }
 
         Log.d(TAG, "Retrying update...");
         FetchMetadataTask task = new FetchMetadataTask();
@@ -280,7 +284,9 @@ public class ReactNativeAutoUpdater {
     }
 
     private void updateDownloaded() {
-        this.activity.updateFinished();
+        if (this.activity != null) {
+            this.activity.updateFinished();
+        }
     }
 
     private void showProgressToast(int message) {
