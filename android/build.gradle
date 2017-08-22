@@ -10,7 +10,7 @@ repositories {
     jcenter()
     mavenCentral()
     maven {
-        url "../../../node_modules/react-native/android"
+        url "../../../react-native/android"
     }
 }
 
