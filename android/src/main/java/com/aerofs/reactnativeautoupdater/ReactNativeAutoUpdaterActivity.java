@@ -19,7 +19,6 @@ public abstract class ReactNativeAutoUpdaterActivity extends ReactActivity
     private ReactNativeAutoUpdater updater;
 
     @Nullable
-    @Override
     protected String getJSBundleFile() {
         updater = ReactNativeAutoUpdater.getInstance(this.getApplicationContext());
         updater.setMetadataAssetName(this.getMetadataAssetName());
