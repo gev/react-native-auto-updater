@@ -1,5 +1,5 @@
 {
-  "name": "@loggi/react-native-auto-updater",
+  "name": "react-native-auto-updater",
   "version": "0.2.12",
   "description": "A library to manage dynamic updates to React Native apps. Available as an NPM Package.",
   "main": "react-native-auto-updater.js",
