@@ -122,7 +122,7 @@ static bool isFirstAccess = YES;
 }
 
 - (NSURL*)latestJSCodeLocation {
-    NSString* latestJSCodeURLString = [[[self libraryDirectory] stringByAppendingPathComponent:@"JSCode"] stringByAppendingPathComponent:@"main.jsbundle"];
+    NSString* latestJSCodeURLString = [[[self libraryDirectory] stringByAppendingPathComponent:@"JSCode"] stringByAppendingPathComponent:@"index.jsbundle"];
     if (latestJSCodeURLString && [[NSFileManager defaultManager] fileExistsAtPath:latestJSCodeURLString]) {
         self._latestJSCodeLocation = [NSURL URLWithString:[NSString stringWithFormat:@"file://%@", latestJSCodeURLString]];
     }
@@ -160,7 +160,7 @@ static bool isFirstAccess = YES;
     else {
         if ([[savedMetadata objectForKey:@"version"] compare:[localMetadata objectForKey:@"version"] options:NSNumericSearch] == NSOrderedAscending) {
             NSData* data = [NSData dataWithContentsOfURL:self.defaultJSCodeLocation];
-            NSString* filename = [NSString stringWithFormat:@"%@/%@", [self createCodeDirectory], @"main.jsbundle"];
+            NSString* filename = [NSString stringWithFormat:@"%@/%@", [self createCodeDirectory], @"index.jsbundle"];
             
             if ([data writeToFile:filename atomically:YES]) {
                 [[NSUserDefaults standardUserDefaults] setObject:localMetadata forKey:ReactNativeAutoUpdaterCurrentJSCodeMetadata];
@@ -452,7 +452,7 @@ static bool isFirstAccess = YES;
     NSError* error;
     
     NSData* data = [NSData dataWithContentsOfURL:location];
-    NSString* filename = [NSString stringWithFormat:@"%@/%@", [self createCodeDirectory], @"main.jsbundle"];
+    NSString* filename = [NSString stringWithFormat:@"%@/%@", [self createCodeDirectory], @"index.jsbundle"];
     
     if ([data writeToFile:filename atomically:YES]) {
         [[NSUserDefaults standardUserDefaults] setObject:self.updateMetadata forKey:ReactNativeAutoUpdaterCurrentJSCodeMetadata];

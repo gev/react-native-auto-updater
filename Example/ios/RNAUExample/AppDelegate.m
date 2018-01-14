@@ -9,11 +9,12 @@
 
 #import "AppDelegate.h"
 
-#import "RCTRootView.h"
+#import <React/RCTBundleURLProvider.h>
+#import <React/RCTRootView.h>
 
-#import "ReactNativeAutoUpdater.h"
+#import <ReactNativeAutoUpdater.h>
 
-#define JS_CODE_METADATA_URL @"https://www.dropbox.com/s/tc4jmkef48cmu87/update.json?raw=1"
+#define JS_CODE_METADATA_URL @"http://localhost:8081/bundle/meta.json"
 
 @interface AppDelegate() <ReactNativeAutoUpdaterDelegate>
 
@@ -23,8 +24,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  NSURL* defaultJSCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
-  
+//  NSURL* defaultJSCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+  NSURL* defaultJSCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+
   /**
    *  1. Get an instance of ReactNativeAutoUpdater
    *  2. Set self as a delegate.
@@ -34,12 +36,14 @@
    */
   ReactNativeAutoUpdater* updater = [ReactNativeAutoUpdater sharedInstance];
   [updater setDelegate:self];
-  NSURL* defaultMetadataFileLocation = [[NSBundle mainBundle] URLForResource:@"metadata" withExtension:@"json"];
+//  NSURL* defaultMetadataFileLocation = [[NSBundle mainBundle] URLForResource:@"bundle" withExtension:@"json"];
+//  NSURL* defaultMetadataFileLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"bundle/meta.json" fallbackResource:nil];
+  NSURL* defaultMetadataFileLocation = [NSURL URLWithString:@"http://localhost:8081/meta.json"];
   [updater initializeWithUpdateMetadataUrl:[NSURL URLWithString:JS_CODE_METADATA_URL]
                      defaultJSCodeLocation:defaultJSCodeLocation
                defaultMetadataFileLocation:defaultMetadataFileLocation ];
   
-  [updater setHostnameForRelativeDownloadURLs:@"https://www.dropbox.com"];
+  [updater setHostnameForRelativeDownloadURLs:@"http://localhost:8081"];
   [updater checkUpdate];
   
   NSURL* latestJSCodeLocation = [updater latestJSCodeLocation];
@@ -56,7 +60,7 @@
   // Make sure this runs on main thread. Apple does not want you to change the UI from background thread.
   dispatch_async(dispatch_get_main_queue(), ^{
     RCTBridge* bridge = [[RCTBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:nil];
-    RCTRootView* rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"ReactNativeAutoUpdater" initialProperties:nil];
+    RCTRootView* rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"reacthome" initialProperties:nil];
     self.window.rootViewController.view = rootView;
   });
 }
