@@ -31,7 +31,7 @@ public class ReactNativeAutoUpdater {
     public static final String RNAU_SHARED_PREFERENCES = "React_Native_Auto_Updater_Shared_Preferences";
     public static final String RNAU_STORED_VERSION = "React_Native_Auto_Updater_Stored_Version";
     private final String RNAU_LAST_UPDATE_TIMESTAMP = "React_Native_Auto_Updater_Last_Update_Timestamp";
-    public static final String RNAU_STORED_JS_FILENAME = "main.android.jsbundle";
+    public static final String RNAU_STORED_JS_FILENAME = "index.jsbundle";
     public static final String RNAU_STORED_JS_FOLDER = "JSCode";
 
     private static final int MAX_ATTEMPTS = 5;
@@ -147,60 +147,7 @@ public class ReactNativeAutoUpdater {
                 return true;
         }
     }
-
-    public String getLatestJSCodeLocation() {
-        SharedPreferences prefs = context.getSharedPreferences(RNAU_SHARED_PREFERENCES, Context.MODE_PRIVATE);
-        String currentVersionStr = prefs.getString(RNAU_STORED_VERSION, null);
-
-        Version currentVersion;
-        try {
-            currentVersion = new Version(currentVersionStr);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        String jsonString = this.getStringFromAsset(this.metadataAssetName);
-        if (jsonString == null) {
-            return null;
-        } else {
-            String jsCodePath = null;
-            try {
-                JSONObject assetMetadata = new JSONObject(jsonString);
-                String assetVersionStr = assetMetadata.getString("version");
-                Version assetVersion = new Version(assetVersionStr);
-
-                if (currentVersion.compareTo(assetVersion) > 0) {
-                    File jsCodeDir = context.getDir(RNAU_STORED_JS_FOLDER, Context.MODE_PRIVATE);
-                    File jsCodeFile = new File(jsCodeDir, RNAU_STORED_JS_FILENAME);
-                    jsCodePath = jsCodeFile.getAbsolutePath();
-                } else {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString(RNAU_STORED_VERSION, currentVersionStr);
-                    editor.apply();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return jsCodePath;
-        }
-    }
-
-    private String getStringFromAsset(String assetName) {
-        String jsonString = null;
-        try {
-            InputStream inputStream = this.context.getAssets().open(assetName);
-            int size = inputStream.available();
-            byte[] buffer = new byte[size];
-            inputStream.read(buffer);
-            inputStream.close();
-            jsonString = new String(buffer, "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return jsonString;
-    }
-
+    
     private void verifyMetadata(JSONObject metadata) {
         try {
             String version = metadata.getString("version");

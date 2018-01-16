@@ -8,8 +8,6 @@ import com.aerofs.reactnativeautoupdater.ReactNativeAutoUpdater.ReactNativeAutoU
 import com.aerofs.reactnativeautoupdater.ReactNativeAutoUpdater.ReactNativeAutoUpdaterFrequency;
 import com.facebook.react.ReactActivity;
 
-import javax.annotation.Nullable;
-
 /**
  * @author rahul
  */
@@ -17,13 +15,6 @@ public abstract class ReactNativeAutoUpdaterActivity extends ReactActivity
         implements ReactNativeAutoUpdater.Interface {
 
     private ReactNativeAutoUpdater updater;
-
-    @Nullable
-    protected String getJSBundleFile() {
-        updater = ReactNativeAutoUpdater.getInstance(this.getApplicationContext());
-        updater.setMetadataAssetName(this.getMetadataAssetName());
-        return updater.getLatestJSCodeLocation();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
